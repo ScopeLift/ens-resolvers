@@ -13,6 +13,7 @@
     "dotenv": "^8.2.0",
     "eth-ens-namehash": "^2.0.8",
     "eth-gas-reporter": "^0.1.2",
+    "hardhat": "^2.1.2",
     "openzeppelin-solidity": "3.3.0",
     "solium": "^1.2.5",
     "truffle": "^5.1.63",
