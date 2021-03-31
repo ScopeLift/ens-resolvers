@@ -1,5 +1,6 @@
 const ENS = artifacts.require('@ensdomains/ens/contracts/ENSRegistry.sol');
 const PublicResolver = artifacts.require('PublicResolver.sol');
+const ForwardingResolver = artifacts.require('ForwardingResolver.sol');
 
 const namehash = require('eth-ens-namehash');
 const sha3 = require('web3-utils').sha3;
@@ -7,16 +8,18 @@ const sha3 = require('web3-utils').sha3;
 const { exceptions } = require('@ensdomains/test-utils');
 const { dnsName } = require('./dnsName');
 
-contract('PublicResolver', function (accounts) {
+contract('ForwardingResolver', function (accounts) {
 
     let node;
-    let ens, resolver;
+    let ens, pubResolver, resolver;
 
     beforeEach(async () => {
         node = namehash.hash('eth');
         ens = await ENS.new();
-        resolver = await PublicResolver.new(ens.address);
+        pubResolver = await PublicResolver.new(ens.address);
+        resolver = await ForwardingResolver.new(ens.address, pubResolver.address);
         await ens.setSubnodeOwner('0x0', sha3('eth'), accounts[0], {from: accounts[0]});
+        await pubResolver.setAuthorisation(node, resolver.address, true);
     });
 
     describe('fallback function', async () => {
@@ -60,7 +63,6 @@ contract('PublicResolver', function (accounts) {
             assert.equal(await resolver.supportsInterface("0x3b3b57df"), false);
         });
     });
-
 
     describe('addr', async () => {
 
@@ -627,6 +629,7 @@ contract('PublicResolver', function (accounts) {
 
         it('checks the authorisation for the current owner', async () => {
             await resolver.setAuthorisation(node, accounts[2], true, {from: accounts[1]});
+            await pubResolver.setAuthorisation(node, resolver.address, true, {from: accounts[1]});
             await ens.setOwner(node, accounts[1], {from: accounts[0]});
 
             await resolver.methods['setAddr(bytes32,address)'](node, accounts[0], {from: accounts[2]});
