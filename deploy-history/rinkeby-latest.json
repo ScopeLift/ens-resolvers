@@ -1,0 +1,7 @@
+{
+  "admin": "0x91C727F6E9feA86A8DC968333c16f615c5603c8a",
+  "contracts": {
+    "ForwardingStealthKeyResolver": "0x5B223a433Af1264d842AF76a02045E61a2983Bd1"
+  },
+  "actions": { "DeployingContractsToNetwork": "rinkeby" }
+}
