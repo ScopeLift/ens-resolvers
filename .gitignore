@@ -3,3 +3,6 @@ node_modules/
 .env
 artifacts/
 cache/
+
+# deploy history localhost files
+deploy-history/localhost-*
