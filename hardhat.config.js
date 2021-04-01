@@ -3,6 +3,7 @@ require('dotenv').config()
 // plugins
 require("@nomiclabs/hardhat-truffle5");
 require("@nomiclabs/hardhat-ethers");
+require("@nomiclabs/hardhat-etherscan");
 
 const chainIds = {
   mainnet: 1,
@@ -22,6 +23,13 @@ if (!process.env.INFURA_API_KEY) {
   console.warn('Please set your INFURA_API_KEY in a .env file');
 } else {
   infuraApiKey = process.env.INFURA_API_KEY;
+}
+
+let etherscanApiKey = '';
+if (!process.env.ETHERSCAN_API_KEY) {
+  console.warn('Please set your ETHERSCAN_API_KEY in a .env file');
+} else {
+  etherscanApiKey = process.env.ETHERSCAN_API_KEY;
 }
 
 function createNetworkConfig(network) {
@@ -51,5 +59,8 @@ module.exports = {
   },
   networks: {
     rinkeby: createNetworkConfig('rinkeby'),
+  },
+  etherscan: {
+    apiKey: etherscanApiKey,
   },
 };
