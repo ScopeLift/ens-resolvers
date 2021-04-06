@@ -15,7 +15,6 @@ contract('ForwardingResolver', function (accounts) {
 
     beforeEach(async () => {
         node = namehash.hash('eth');
-        console.log(namehash.hash('umbra-demo.eth'));
         ens = await ENS.new();
         pubResolver = await PublicResolver.new(ens.address);
         resolver = await ForwardingResolver.new(ens.address, pubResolver.address);
