@@ -15,6 +15,11 @@ contract('StealthKeyFIFSRegistrar', function (accounts) {
     let ens, pubResolver, resolver, registrar;
     let [admin, owner, subOwner, other] = accounts
 
+    const SPENDING_KEY = 10;
+    const SPENDING_PREFIX = 2;
+    const VIEWING_KEY = 20;
+    const VIEWING_PREFIX = 3;
+
     beforeEach(async () => {
         label = sha3('mysubdomain');
         node = namehash.hash('mysubdomain.umbra.eth');
@@ -41,7 +46,9 @@ contract('StealthKeyFIFSRegistrar', function (accounts) {
     describe('before authorization', () => {
         it('should not have permission to allow submdomain registration', async () => {
             await exceptions.expectFailure(
-                registrar.register(label, subOwner, {from: subOwner}),
+                registrar.register(
+                    label, subOwner, SPENDING_PREFIX, SPENDING_KEY, VIEWING_PREFIX, VIEWING_KEY, {from: subOwner}
+                ),
             );
         });
     });
@@ -56,24 +63,39 @@ contract('StealthKeyFIFSRegistrar', function (accounts) {
 
         describe('registration', () => {
             it('should allow a subdomain registration', async () => {
-                await registrar.register(label, subOwner, {from: subOwner});
+                await registrar.register(
+                    label, subOwner, SPENDING_PREFIX, SPENDING_KEY, VIEWING_PREFIX, VIEWING_KEY, {from: subOwner}
+                );
+
                 assert.equal(subOwner, await ens.owner(node));
                 assert.equal(resolver.address, await ens.resolver(node));
+
+                const keys = await resolver.stealthKeys(node)
+                assert.equal(keys[0].toNumber(), SPENDING_PREFIX);
+                assert.equal(keys[1].toNumber(), SPENDING_KEY);
+                assert.equal(keys[2].toNumber(), VIEWING_PREFIX);
+                assert.equal(keys[3].toNumber(), VIEWING_KEY);
             });
 
             it('should not allow subdmoain re-registration', async () => {
-                await registrar.register(label, subOwner, {from: subOwner});
+                await registrar.register(
+                    label, subOwner, SPENDING_PREFIX, SPENDING_KEY, VIEWING_PREFIX, VIEWING_KEY, {from: subOwner}
+                );
                 assert.equal(subOwner, await ens.owner(node));
 
                 await exceptions.expectFailure(
-                    registrar.register(label, other, {from: other}),
+                    registrar.register(
+                        label, other, SPENDING_PREFIX, SPENDING_KEY, VIEWING_PREFIX, VIEWING_KEY, {from: other}
+                    ),
                 );
             });
         });
 
         describe('ownership', () => {
             beforeEach(async () => {
-                await registrar.register(label, subOwner, {from: subOwner});
+                await registrar.register(
+                    label, subOwner, SPENDING_PREFIX, SPENDING_KEY, VIEWING_PREFIX, VIEWING_KEY, {from: subOwner}
+                );
                 assert.equal(subOwner, await ens.owner(node));
             });
 
