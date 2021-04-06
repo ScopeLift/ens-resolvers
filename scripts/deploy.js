@@ -2,6 +2,7 @@ const fs = require("fs");
 const hre = require("hardhat");
 const { exit } = require("process");
 const { ethers } = hre;
+const namehash = require('eth-ens-namehash');
 
 const network = process.env.HARDHAT_NETWORK;
 
@@ -52,15 +53,35 @@ const save = (value, field, subfield = undefined) => {
     const [adminWallet] = await ethers.getSigners();
     save(adminWallet.address, "admin");
 
-    // deploy the Resolver contract
+    // deploy the forwarding resolver contract
     const ForwardingStealthKeyResolver = await ethers.getContractFactory("ForwardingStealthKeyResolver", adminWallet);
-    const resolver = await ForwardingStealthKeyResolver.deploy(
+    const fskResolver = await ForwardingStealthKeyResolver.deploy(
       deployParamsForNetwork.ens,
       deployParamsForNetwork.publicResolver,
     );
-    await resolver.deployed();
-    save(resolver.address, "contracts", "ForwardingStealthKeyResolver");
-    console.log("ForwardingStealthKeyResolver contract deployed to address: ", resolver.address);
+    await fskResolver.deployed();
+    save(fskResolver.address, "contracts", "ForwardingStealthKeyResolver");
+    console.log("ForwardingStealthKeyResolver contract deployed to address: ", fskResolver.address);
+
+    // deploy the standalone resolver contract
+    const PublicStealthKeyResolver = await ethers.getContractFactory("PublicStealthKeyResolver", adminWallet);
+    const pskResolver = await PublicStealthKeyResolver.deploy(
+      deployParamsForNetwork.ens,
+    );
+    await pskResolver.deployed();
+    save(pskResolver.address, "contracts", "PublicStealthKeyResolver");
+    console.log("PublicStealthKeyResolver contract deployed to address: ", pskResolver.address);
+
+    // deploy the subdomain registrar contract
+    const StealthKeyFIFSRegistrar = await ethers.getContractFactory("StealthKeyFIFSRegistrar", adminWallet);
+    const registrar = await StealthKeyFIFSRegistrar.deploy(
+      deployParamsForNetwork.ens,
+      pskResolver.address,
+      namehash.hash('umbra.eth'),
+    );
+    await registrar.deployed();
+    save(registrar.address, "contracts", "StealthKeyFIFSRegistrar");
+    console.log("StealthKeyFIFSRegistrar contract deployed to address: ", registrar.address);
 
     // everything went well, save the deployment info in the 'latest' JSON file
     fs.writeFileSync(latestFileName, JSON.stringify(parameters));
