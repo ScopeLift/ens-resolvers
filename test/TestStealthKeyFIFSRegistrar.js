@@ -35,7 +35,7 @@ contract('StealthKeyFIFSRegistrar', function (accounts) {
         resolver = await ForwardingStealthKeyResolver.new(ens.address, pubResolver.address);
 
         // Deploy the subdomain registrar
-        registrar = await StealthKeyFIFSRegistrar.new(ens.address, umbraNode, {from: owner});
+        registrar = await StealthKeyFIFSRegistrar.new(ens.address, resolver.address, umbraNode, {from: owner});
     });
 
     describe('before authorization', () => {
@@ -58,6 +58,7 @@ contract('StealthKeyFIFSRegistrar', function (accounts) {
             it('should allow a subdomain registration', async () => {
                 await registrar.register(label, subOwner, {from: subOwner});
                 assert.equal(subOwner, await ens.owner(node));
+                assert.equal(resolver.address, await ens.resolver(node));
             });
 
             it('should not allow subdmoain re-registration', async () => {
