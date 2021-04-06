@@ -13,7 +13,7 @@ contract('StealthKeyFIFSRegistrar', function (accounts) {
 
     let label, node;
     let ens, pubResolver, resolver, registrar;
-    let [admin, owner, subOwner] = accounts
+    let [admin, owner, subOwner, other] = accounts
 
     beforeEach(async () => {
         label = sha3('mysubdomain');
@@ -54,9 +54,37 @@ contract('StealthKeyFIFSRegistrar', function (accounts) {
             assert(isApproved);
         });
 
-        it('should allow a subdmoain registration', async () => {
-            await registrar.register(label, subOwner, {from: subOwner});
-            assert.equal(subOwner, await ens.owner(node));
+        describe('registration', () => {
+            it('should allow a subdomain registration', async () => {
+                await registrar.register(label, subOwner, {from: subOwner});
+                assert.equal(subOwner, await ens.owner(node));
+            });
+
+            it('should not allow subdmoain re-registration', async () => {
+                await registrar.register(label, subOwner, {from: subOwner});
+                assert.equal(subOwner, await ens.owner(node));
+
+                await exceptions.expectFailure(
+                    registrar.register(label, other, {from: other}),
+                );
+            });
+        });
+
+        describe('ownership', () => {
+            beforeEach(async () => {
+                await registrar.register(label, subOwner, {from: subOwner});
+                assert.equal(subOwner, await ens.owner(node));
+            });
+
+            it('should allow a registrant to assign their own resolver', async () => {
+                await ens.setResolver(node, pubResolver.address, {from: subOwner});
+                assert.equal(pubResolver.address, await ens.resolver(node));
+            });
+
+            it('should allow a registrant to transfer ownership', async () => {
+                await ens.setOwner(node, other, {from: subOwner});
+                assert.equal(other, await ens.owner(node));
+            });
         });
     });
 
