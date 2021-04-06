@@ -1,6 +1,6 @@
 const ENS = artifacts.require('@ensdomains/ens/contracts/ENSRegistry.sol');
 const PublicResolver = artifacts.require('PublicResolver.sol');
-const ForwardingStealthKeyResolver = artifacts.require('ForwardingStealthKeyResolver.sol');
+const PublicStealthKeyResolver = artifacts.require('PublicStealthKeyResolver.sol');
 const StealthKeyFIFSRegistrar = artifacts.require('StealthKeyFIFSRegistrar.sol');
 
 const namehash = require('eth-ens-namehash');
@@ -37,7 +37,7 @@ contract('StealthKeyFIFSRegistrar', function (accounts) {
 
         // Deploy stealth key forwarding resolver to be used by subdomains
         pubResolver = await PublicResolver.new(ens.address);
-        resolver = await ForwardingStealthKeyResolver.new(ens.address, pubResolver.address);
+        resolver = await PublicStealthKeyResolver.new(ens.address);
 
         // Deploy the subdomain registrar
         registrar = await StealthKeyFIFSRegistrar.new(ens.address, resolver.address, umbraNode, {from: owner});
@@ -107,6 +107,20 @@ contract('StealthKeyFIFSRegistrar', function (accounts) {
             it('should allow a registrant to transfer ownership', async () => {
                 await ens.setOwner(node, other, {from: subOwner});
                 assert.equal(other, await ens.owner(node));
+            });
+
+            it('should allow a registrant to update their stealth keys', async () => {
+                await resolver.setStealthKeys(node, 3, SPENDING_KEY + 1, 2, VIEWING_KEY + 1, {from: subOwner});
+                keys = await resolver.stealthKeys(node)
+                assert.equal(keys[0].toNumber(), 3);
+                assert.equal(keys[1].toNumber(), SPENDING_KEY + 1);
+                assert.equal(keys[2].toNumber(), 2);
+                assert.equal(keys[3].toNumber(), VIEWING_KEY + 1);
+            });
+
+            it('should allow a registrant to set their addr', async ()=> {
+                await resolver.methods['setAddr(bytes32,address)'](node, subOwner, {from: subOwner});
+                assert.equal(subOwner, await resolver.addr(node));
             });
         });
     });
