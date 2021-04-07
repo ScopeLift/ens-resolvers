@@ -76,7 +76,6 @@ const save = (value, field, subfield = undefined) => {
     const StealthKeyFIFSRegistrar = await ethers.getContractFactory("StealthKeyFIFSRegistrar", adminWallet);
     const registrar = await StealthKeyFIFSRegistrar.deploy(
       deployParamsForNetwork.ens,
-      pskResolver.address,
       namehash.hash('umbra.eth'),
     );
     await registrar.deployed();
