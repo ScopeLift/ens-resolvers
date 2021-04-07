@@ -14,6 +14,9 @@ import "./profiles/TextResolver.sol";
 /**
  * A simple resolver anyone can use; only allows the owner of a node to set its
  * address.
+ *
+ * @dev Umbra: This is the standard ENS Public Resolver, extended to include the StealthKeyResolver interface.
+ * See contracts/PublicResolver.sol for the basis of this resolver.
  */
 contract PublicStealthKeyResolver is ABIResolver, AddrResolver, ContentHashResolver, DNSResolver, InterfaceResolver, NameResolver, PubkeyResolver, StealthKeyResolver, TextResolver {
     ENS ens;

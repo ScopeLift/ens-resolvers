@@ -6,6 +6,10 @@ const sha3 = require('web3-utils').sha3;
 
 const { exceptions } = require('@ensdomains/test-utils');
 
+
+// This test suite is a superset of the test/TestPublicResolver.js suite, because the contract
+// it is testing is an extension of the PublicResolver. In addition to all the PublicResolver
+// tests, it also includes tests for the StealthKeyResolver profile which is added to it.
 contract('PublicStealthKeyResolver', function (accounts) {
 
     let node;
