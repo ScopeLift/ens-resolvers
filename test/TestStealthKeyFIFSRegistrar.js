@@ -40,14 +40,14 @@ contract('StealthKeyFIFSRegistrar', function (accounts) {
         resolver = await PublicStealthKeyResolver.new(ens.address);
 
         // Deploy the subdomain registrar
-        registrar = await StealthKeyFIFSRegistrar.new(ens.address, resolver.address, umbraNode, {from: owner});
+        registrar = await StealthKeyFIFSRegistrar.new(ens.address, umbraNode, {from: owner});
     });
 
     describe('before authorization', () => {
         it('should not have permission to allow submdomain registration', async () => {
             await exceptions.expectFailure(
                 registrar.register(
-                    label, subOwner, SPENDING_PREFIX, SPENDING_KEY, VIEWING_PREFIX, VIEWING_KEY, {from: subOwner}
+                    label, subOwner, resolver.address, SPENDING_PREFIX, SPENDING_KEY, VIEWING_PREFIX, VIEWING_KEY, {from: subOwner}
                 ),
             );
         });
@@ -64,7 +64,7 @@ contract('StealthKeyFIFSRegistrar', function (accounts) {
         describe('registration', () => {
             it('should allow a subdomain registration', async () => {
                 await registrar.register(
-                    label, subOwner, SPENDING_PREFIX, SPENDING_KEY, VIEWING_PREFIX, VIEWING_KEY, {from: subOwner}
+                    label, subOwner, resolver.address, SPENDING_PREFIX, SPENDING_KEY, VIEWING_PREFIX, VIEWING_KEY, {from: subOwner}
                 );
 
                 assert.equal(subOwner, await ens.owner(node));
@@ -79,13 +79,13 @@ contract('StealthKeyFIFSRegistrar', function (accounts) {
 
             it('should not allow subdmoain re-registration', async () => {
                 await registrar.register(
-                    label, subOwner, SPENDING_PREFIX, SPENDING_KEY, VIEWING_PREFIX, VIEWING_KEY, {from: subOwner}
+                    label, subOwner, resolver.address, SPENDING_PREFIX, SPENDING_KEY, VIEWING_PREFIX, VIEWING_KEY, {from: subOwner}
                 );
                 assert.equal(subOwner, await ens.owner(node));
 
                 await exceptions.expectFailure(
                     registrar.register(
-                        label, other, SPENDING_PREFIX, SPENDING_KEY, VIEWING_PREFIX, VIEWING_KEY, {from: other}
+                        label, other, resolver.address, SPENDING_PREFIX, SPENDING_KEY, VIEWING_PREFIX, VIEWING_KEY, {from: other}
                     ),
                 );
             });
@@ -94,7 +94,7 @@ contract('StealthKeyFIFSRegistrar', function (accounts) {
         describe('ownership', () => {
             beforeEach(async () => {
                 await registrar.register(
-                    label, subOwner, SPENDING_PREFIX, SPENDING_KEY, VIEWING_PREFIX, VIEWING_KEY, {from: subOwner}
+                    label, subOwner, resolver.address, SPENDING_PREFIX, SPENDING_KEY, VIEWING_PREFIX, VIEWING_KEY, {from: subOwner}
                 );
                 assert.equal(subOwner, await ens.owner(node));
             });
