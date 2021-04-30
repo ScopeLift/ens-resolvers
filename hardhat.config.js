@@ -43,7 +43,7 @@ function createNetworkConfig(network) {
     },
     chainId: chainIds[network],
     url,
-    gasPrice: 200000000000, // 200 gwei
+    gasPrice: 60000000000, // 60 gwei
   };
 }
 
