@@ -1,0 +1,9 @@
+{
+  "admin": "0x5777Aa6F437399Af6cef2Fce0BE8D4B4eD7C7232",
+  "contracts": {
+    "ForwardingStealthKeyResolver": "0xB37671329ABE589109b0bDD1312cc6ACcF106259",
+    "PublicStealthKeyResolver": "0x7D6888e1a454a1fb375125a1688240e5D761fFa6",
+    "StealthKeyFIFSRegistrar": "0x1deF3b1b3288AC5433C2a34170Dcf89d3707EfEd"
+  },
+  "actions": { "DeployingContractsToNetwork": "mainnet" }
+}
