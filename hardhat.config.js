@@ -60,6 +60,17 @@ module.exports = {
   },
   networks: {
     rinkeby: createNetworkConfig('rinkeby'),
+    mainnet: {
+      accounts: {
+        count: 10,
+        initialIndex: 0,
+        mnemonic,
+        path: "m/44'/60'/0'/0",
+      },
+      chainId: chainIds['mainnet'],
+      url: `https://mainnet.infura.io/v3/${infuraApiKey}`,
+      gasPrice: 60000000000, // 60 gwei
+    },
   },
   etherscan: {
     apiKey: etherscanApiKey,
