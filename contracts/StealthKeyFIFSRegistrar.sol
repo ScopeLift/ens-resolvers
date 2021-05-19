@@ -2,6 +2,7 @@ pragma solidity ^0.7.6;
 
 import "@ensdomains/ens/contracts/ENS.sol";
 import "./profiles/StealthKeyResolver.sol";
+import "./profiles/AddrResolver.sol";
 
 /**
  * A registrar that allocates StealthKey ready subdomains to the first person to claim them.
@@ -35,7 +36,7 @@ contract StealthKeyFIFSRegistrar {
     function register(
         bytes32 _label,
         address _owner,
-        StealthKeyResolver _resolver,
+        address _resolver,
         uint256 _spendingPubKeyPrefix,
         uint256 _spendingPubKey,
         uint256 _viewingPubKeyPrefix,
@@ -48,9 +49,10 @@ contract StealthKeyFIFSRegistrar {
         address _currentOwner = ens.owner(_node);
         require(_currentOwner == address(0x0), 'StealthKeyFIFSRegistrar: Already claimed');
 
-        // temporarily make this contract the subnode owner to allow it to update the stealth keys
+        // temporarily make this contract the subnode owner to allow it to update the stealth keys & address
         ens.setSubnodeOwner(rootNode, _label, address(this));
-        _resolver.setStealthKeys(_node, _spendingPubKeyPrefix, _spendingPubKey, _viewingPubKeyPrefix, _viewingPubKey);
+        StealthKeyResolver(_resolver).setStealthKeys(_node, _spendingPubKeyPrefix, _spendingPubKey, _viewingPubKeyPrefix, _viewingPubKey);
+        AddrResolver(_resolver).setAddr(_node, _owner);
 
         // transfer ownership to the registrant and set stealth key resolver
         ens.setSubnodeRecord(rootNode, _label, _owner, address(_resolver), 0);
