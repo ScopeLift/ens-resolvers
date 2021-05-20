@@ -43,7 +43,7 @@ function createNetworkConfig(network) {
     },
     chainId: chainIds[network],
     url,
-    gasPrice: 60000000000, // 60 gwei
+    gasPrice: 200000000000, // 200 gwei
   };
 }
 
@@ -69,7 +69,7 @@ module.exports = {
       },
       chainId: chainIds['mainnet'],
       url: `https://mainnet.infura.io/v3/${infuraApiKey}`,
-      gasPrice: 60000000000, // 60 gwei
+      gasPrice: 200000000000, // 200 gwei
     },
   },
   etherscan: {

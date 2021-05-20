@@ -1,0 +1,7 @@
+{
+  "admin": "0x5777Aa6F437399Af6cef2Fce0BE8D4B4eD7C7232",
+  "contracts": {
+    "StealthKeyFIFSRegistrar": "0x9647eBE6286913700694857C09b6848319255A83"
+  },
+  "actions": { "DeployingContractsToNetwork": "rinkeby" }
+}
