@@ -75,6 +75,9 @@ contract('StealthKeyFIFSRegistrar', function (accounts) {
                 assert.equal(keys[1].toNumber(), SPENDING_KEY);
                 assert.equal(keys[2].toNumber(), VIEWING_PREFIX);
                 assert.equal(keys[3].toNumber(), VIEWING_KEY);
+
+                const addr = await resolver.addr(node);
+                assert.equal(addr, subOwner);
             });
 
             it('should not allow subdmoain re-registration', async () => {

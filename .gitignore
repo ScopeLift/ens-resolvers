@@ -5,4 +5,4 @@ artifacts/
 cache/
 
 # deploy history localhost files
-deploy-history/localhost-*
+deploy-history/*localhost-*

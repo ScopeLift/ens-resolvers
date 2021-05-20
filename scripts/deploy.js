@@ -1,3 +1,4 @@
+require('dotenv').config()
 const fs = require("fs");
 const hre = require("hardhat");
 const { exit } = require("process");
@@ -5,6 +6,7 @@ const { ethers } = hre;
 const namehash = require('eth-ens-namehash');
 
 const network = process.env.HARDHAT_NETWORK;
+const onlyRegistrar = process.env.ONLY_REGISTRAR === 'true';
 
 // Initialize object that will hold all deploy info. We'll continually update this and save it to
 // a file using the save() method below
@@ -17,8 +19,17 @@ const parameters = {
 // Setup for saving off deploy info to JSON files
 const now = new Date().toISOString();
 const folderName = "./deploy-history";
-const fileName = `${folderName}/${network}-${now}.json`;
-const latestFileName = `${folderName}/${network}-latest.json`;
+
+let fileName, latestFileName;
+
+if (onlyRegistrar) {
+  fileName = `${folderName}/registrar-${network}-${now}.json`;
+  latestFileName = `${folderName}/registrar-${network}-latest.json`;
+} else {
+  fileName = `${folderName}/${network}-${now}.json`;
+  latestFileName = `${folderName}/${network}-latest.json`;
+}
+
 fs.mkdir(folderName, (err) => {
   if (err && err.code !== "EEXIST") throw err;
 });
@@ -53,24 +64,26 @@ const save = (value, field, subfield = undefined) => {
     const [adminWallet] = await ethers.getSigners();
     save(adminWallet.address, "admin");
 
-    // deploy the forwarding resolver contract
-    const ForwardingStealthKeyResolver = await ethers.getContractFactory("ForwardingStealthKeyResolver", adminWallet);
-    const fskResolver = await ForwardingStealthKeyResolver.deploy(
-      deployParamsForNetwork.ens,
-      deployParamsForNetwork.publicResolver,
-    );
-    await fskResolver.deployed();
-    save(fskResolver.address, "contracts", "ForwardingStealthKeyResolver");
-    console.log("ForwardingStealthKeyResolver contract deployed to address: ", fskResolver.address);
+    if (!onlyRegistrar) {
+      // deploy the forwarding resolver contract
+      const ForwardingStealthKeyResolver = await ethers.getContractFactory("ForwardingStealthKeyResolver", adminWallet);
+      const fskResolver = await ForwardingStealthKeyResolver.deploy(
+        deployParamsForNetwork.ens,
+        deployParamsForNetwork.publicResolver,
+      );
+      await fskResolver.deployed();
+      save(fskResolver.address, "contracts", "ForwardingStealthKeyResolver");
+      console.log("ForwardingStealthKeyResolver contract deployed to address: ", fskResolver.address);
 
-    // deploy the standalone resolver contract
-    const PublicStealthKeyResolver = await ethers.getContractFactory("PublicStealthKeyResolver", adminWallet);
-    const pskResolver = await PublicStealthKeyResolver.deploy(
-      deployParamsForNetwork.ens,
-    );
-    await pskResolver.deployed();
-    save(pskResolver.address, "contracts", "PublicStealthKeyResolver");
-    console.log("PublicStealthKeyResolver contract deployed to address: ", pskResolver.address);
+      // deploy the standalone resolver contract
+      const PublicStealthKeyResolver = await ethers.getContractFactory("PublicStealthKeyResolver", adminWallet);
+      const pskResolver = await PublicStealthKeyResolver.deploy(
+        deployParamsForNetwork.ens,
+      );
+      await pskResolver.deployed();
+      save(pskResolver.address, "contracts", "PublicStealthKeyResolver");
+      console.log("PublicStealthKeyResolver contract deployed to address: ", pskResolver.address);
+    }
 
     // deploy the subdomain registrar contract
     const StealthKeyFIFSRegistrar = await ethers.getContractFactory("StealthKeyFIFSRegistrar", adminWallet);

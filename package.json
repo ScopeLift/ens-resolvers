@@ -27,6 +27,7 @@
   "scripts": {
     "test": "hardhat test",
     "deploy": "hardhat compile && hardhat run scripts/deploy.js",
+    "deploy:registrar": "ONLY_REGISTRAR=true yarn deploy",
     "lint": "solium --dir ./contracts"
   },
   "dependencies": {}
